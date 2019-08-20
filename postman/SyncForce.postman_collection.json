@@ -1,0 +1,203 @@
+{
+	"info": {
+		"_postman_id": "64291260-642f-4880-bfc9-6780d9e5fa4e",
+		"name": "SyncForce",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Synchronize Catalog",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "ShopName",
+						"value": "{{ShopName}}",
+						"type": "text"
+					},
+					{
+						"key": "ShopperId",
+						"value": "{{ShopperId}}",
+						"type": "text"
+					},
+					{
+						"key": "Language",
+						"value": "{{Language}}",
+						"type": "text"
+					},
+					{
+						"key": "Currency",
+						"value": "{{Currency}}",
+						"type": "text"
+					},
+					{
+						"key": "Environment",
+						"value": "{{Environment}}",
+						"type": "text"
+					},
+					{
+						"key": "GeoLocation",
+						"value": "{{GeoLocation}}",
+						"type": "text"
+					},
+					{
+						"key": "CustomerId",
+						"value": "{{CustomerId}}",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{SitecoreIdToken}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "catalogId",
+							"value": "Entity-Catalog-Global Dunlop Boots webiste",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{ServiceHost}}/{{ShopsApi}}/SynchronizeCatalog()",
+					"host": [
+						"{{ServiceHost}}"
+					],
+					"path": [
+						"{{ShopsApi}}",
+						"SynchronizeCatalog()"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Synchronize Product",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "ShopName",
+						"type": "text",
+						"value": "{{ShopName}}"
+					},
+					{
+						"key": "ShopperId",
+						"type": "text",
+						"value": "{{ShopperId}}"
+					},
+					{
+						"key": "Language",
+						"type": "text",
+						"value": "{{Language}}"
+					},
+					{
+						"key": "Currency",
+						"type": "text",
+						"value": "{{Currency}}"
+					},
+					{
+						"key": "Environment",
+						"type": "text",
+						"value": "{{Environment}}"
+					},
+					{
+						"key": "GeoLocation",
+						"type": "text",
+						"value": "{{GeoLocation}}"
+					},
+					{
+						"key": "CustomerId",
+						"type": "text",
+						"value": "{{CustomerId}}"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "{{SitecoreIdToken}}"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "productId",
+							"value": "0",
+							"type": "text"
+						},
+						{
+							"key": "entityId",
+							"value": "0",
+							"type": "text"
+						},
+						{
+							"key": "externalProductId",
+							"value": "204",
+							"type": "text"
+						},
+						{
+							"key": "catalogId",
+							"value": "Entity-Catalog-Global Dunlop Boots webiste",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{ServiceHost}}/{{ShopsApi}}/SynchronizeProduct()",
+					"host": [
+						"{{ServiceHost}}"
+					],
+					"path": [
+						"{{ShopsApi}}",
+						"SynchronizeProduct()"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Run UpdateProducts Minion",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{SitecoreIdToken}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"minionFullName\":\"Sitecore.Commerce.Plugin.Catalogs.SyncForce.Minions.UpdateProductsMinion, Sitecore.Commerce.Plugin.Catalogs.SyncForce\",\n    \"environmentName\": \"{{MinionsEnvironment}}\"\n}\n"
+				},
+				"url": {
+					"raw": "{{MinionsHost}}/{{OpsApi}}/RunMinion()",
+					"host": [
+						"{{MinionsHost}}"
+					],
+					"path": [
+						"{{OpsApi}}",
+						"RunMinion()"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
