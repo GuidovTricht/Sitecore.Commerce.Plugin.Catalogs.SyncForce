@@ -1,0 +1,18 @@
+﻿{
+  "ProviderId": "Microsoft.VisualStudio.ConnectedService.Wcf",
+  "Version": "15.0.30515.712",
+  "ExtendedData": {
+    "inputs": [
+      "http://cde.syncforce.com/Corporate/Product.svc"
+    ],
+    "collectionTypes": [
+      "System.Array",
+      "System.Collections.Generic.Dictionary`2"
+    ],
+    "namespaceMappings": [
+      "*, Sitecore.Commerce.Plugin.Catalogs.SyncForce.Services"
+    ],
+    "targetFramework": "net471",
+    "typeReuseMode": "None"
+  }
+}
