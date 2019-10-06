@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Sitecore.Commerce.Core;
@@ -13,15 +12,17 @@ namespace Sitecore.Commerce.Plugin.Catalogs.SyncForce.Minions
 {
     public class UpdateProductsMinion : Minion
     {
-        //private ISynchronizeProductPipeline _synchronizeProductPipeline;
-        //private IRemoveListEntitiesPipeline _removeListEntitiesPipeline;
+        private ISynchronizeProductPipeline _synchronizeProductPipeline;
+        private IRemoveListEntitiesPipeline _removeListEntitiesPipeline;
+        private IGetListsEntityIdsPipeline _getListsEntityIdsPipeline;
 
-        //public override void Initialize(IServiceProvider serviceProvider, MinionPolicy policy, CommerceContext globalContext)
-        //{
-        //    base.Initialize(serviceProvider, policy, globalContext);
-        //    _synchronizeProductPipeline = this.ResolvePipeline<ISynchronizeProductPipeline>();
-        //    _removeListEntitiesPipeline = this.ResolvePipeline<IRemoveListEntitiesPipeline>();
-        //}
+        public override void Initialize(IServiceProvider serviceProvider, MinionPolicy policy, CommerceContext globalContext)
+        {
+            base.Initialize(serviceProvider, policy, globalContext);
+            _synchronizeProductPipeline = this.ResolvePipeline<ISynchronizeProductPipeline>();
+            _removeListEntitiesPipeline = this.ResolvePipeline<IRemoveListEntitiesPipeline>();
+            _getListsEntityIdsPipeline = this.ResolvePipeline<IGetListsEntityIdsPipeline>();
+        }
 
         protected override async Task<MinionRunResultsModel> Execute()
         {
@@ -30,34 +31,43 @@ namespace Sitecore.Commerce.Plugin.Catalogs.SyncForce.Minions
             {
                 listCount = await this.GetListCount(this.Policy.ListToWatch);
                 this.Logger.LogInformation($"{this.Name}-Review List {this.Policy.ListToWatch}: Count:{listCount}");
-                var list = (await this.GetListIds<string>(this.Policy.ListToWatch, this.Policy.ItemsPerBatch));
+                var lists = (await _getListsEntityIdsPipeline.Run(new GetListsEntityIdsArgument(new []{this.Policy.ListToWatch}), MinionContext.PipelineContextOptions));
 
-                //foreach (var id in list)
-                //{
-                //    this.Logger.LogDebug($"{this.Name}-Reviewing Pending Product Update: {id}");
+                if (lists == null || !lists.Any())
+                {
+                    this.Logger.LogError($"{this.Name}: No ids were found in the list {this.Policy.ListToWatch}");
+                    return new MinionRunResultsModel(false, 0, false);
+                }
 
-                //    var ids = id.Split('_');
+                string text = MinionContext.GetPolicy<ListNamePolicy>().ListName(this.Policy.ListToWatch.ToUpperInvariant());
+                var list = lists[text];
 
-                //    var catalogId = ids[0];
-                //    var productId = Convert.ToInt32(ids[1]);
-                //    Condition.Requires(productId)
-                //        .IsGreaterThan(0, $"{this.Name}: could not convert ExternalProductId to int.");
-                //    try
-                //    {
-                //        await _synchronizeProductPipeline.Run(
-                //            new SynchronizeProductArgument { ExternalProductId = productId, CatalogId = catalogId.ToEntityId<Sitecore.Commerce.Plugin.Catalog.Catalog>() },
-                //            MinionContext.PipelineContextOptions);
-                //        this.Logger.LogInformation($"{this.Name}: Product with id {id} has been updated");
+                foreach (var id in list)
+                {
+                    this.Logger.LogDebug($"{this.Name}-Reviewing Pending Product Update: {id}");
 
-                //        await _removeListEntitiesPipeline.Run(
-                //            new ListEntitiesArgument(new List<string>() { id }, this.Policy.ListToWatch),
-                //            MinionContext.PipelineContextOptions);
-                //    }
-                //    catch (Exception ex)
-                //    {
-                //        this.Logger.LogError(ex, $"{this.Name}: Product with id {id} could not be updated");
-                //    }
-                //}
+                    var ids = id.Split('_');
+
+                    var catalogId = ids[0];
+                    var productId = Convert.ToInt32(ids[1]);
+                    Condition.Requires(productId)
+                        .IsGreaterThan(0, $"{this.Name}: could not convert ExternalProductId to int.");
+                    try
+                    {
+                        await _synchronizeProductPipeline.Run(
+                            new SynchronizeProductArgument { ExternalProductId = productId, CatalogId = catalogId.ToEntityId<Sitecore.Commerce.Plugin.Catalog.Catalog>() },
+                            MinionContext.PipelineContextOptions);
+                        this.Logger.LogInformation($"{this.Name}: Product with id {id} has been updated");
+
+                        await _removeListEntitiesPipeline.Run(
+                            new ListEntitiesArgument(new List<string>() { id }, this.Policy.ListToWatch),
+                            MinionContext.PipelineContextOptions);
+                    }
+                    catch (Exception ex)
+                    {
+                        this.Logger.LogError(ex, $"{this.Name}: Product with id {id} could not be updated");
+                    }
+                }
             }
             catch (Exception e)
             {

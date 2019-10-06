@@ -1,0 +1,21 @@
+﻿{
+  "$type": "Sitecore.Commerce.Core.PolicySet, Sitecore.Commerce.Core",
+  "Id": "Entity-PolicySet-SyncForcePolicySet",
+  "Version": 1,
+  "IsPersisted": false,
+  "Name": "SyncForcePolicySet",
+  "Policies": {
+    "$type": "System.Collections.Generic.List`1[[Sitecore.Commerce.Core.Policy, Sitecore.Commerce.Core]], mscorlib",
+    "$values": [
+      {
+        "$type": "Sitecore.Commerce.Plugin.Catalogs.SyncForce.Policies.SyncForceClientPolicy, Sitecore.Commerce.Plugin.Catalogs.SyncForce",
+        "Endpoint": "http://cde.syncforce.com/Corporate/Product.svc",
+        "SecurityCode": "",
+        "DefaultLanguage": "en",
+        "PropositionId": 1,
+        "CustomIdentifierKey": "SyncForceId",
+        "CommonComposerTemplateName": "SyncForce common properties"
+      }
+    ]
+  }
+}
